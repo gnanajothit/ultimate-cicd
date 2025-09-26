@@ -1,15 +1,17 @@
 pipeline {
-  agent {
+ agent {
     docker {
-      image 'abhishekf5/maven-abhishek-docker-agent:v1'
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+        image 'maven:3.9.6-eclipse-temurin-17'
+        args '-v /var/lib/jenkins/.m2:/root/.m2'
     }
-  }
+ }
+
+  
   stages {
     stage('Checkout') {
       steps {
         sh 'echo passed'
-        //git branch: 'main', url: 'https://github.com/gnanajothi/ultimate-cicd.git'
+        //git branch: 'main', url: 'https://github.com/gnanajothit/ultimate-cicd.git'
       }
     }
     stage('Build and Test') {
@@ -31,7 +33,7 @@ pipeline {
     }
     stage('Build and Push Docker Image') {
       environment {
-        DOCKER_IMAGE = "gnanajothit18/ultimate-cicd:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "abhishekf5/ultimate-cicd:${BUILD_NUMBER}"
         // DOCKERFILE_LOCATION = "spring-boot-app/Dockerfile"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
       }
@@ -53,7 +55,7 @@ pipeline {
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
-                    git config user.email "gnanajothit@gmail.com"
+                    git config user.email "gnanajothit18@gmail.com"
                     git config user.name "gnanajothit"
                     BUILD_NUMBER=${BUILD_NUMBER}
                     sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" spring-boot-app-manifests/deployment.yml
