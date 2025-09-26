@@ -49,36 +49,27 @@
 
     </dependencies>
 
-   <build>
-    <finalName>spring-boot-web</finalName>
+    <build>
 
-    <plugins>
-        <!-- Spring Boot Maven plugin -->
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
+        <finalName>spring-boot-web</finalName>
 
-        <!-- Maven Compiler plugin -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.11.0</version> <!-- ✅ correct version -->
-            <configuration>
-                <source>${java.version}</source>
-                <target>${java.version}</target>
-            </configuration>
-        </plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
 
-        <!-- Sonar Maven plugin (optional, if you want to run Sonar analysis) -->
-        <plugin>
-            <groupId>org.sonarsource.scanner.maven</groupId>
-            <artifactId>sonar-maven-plugin</artifactId>
-            <version>3.9.1.2184</version> <!-- ✅ correct for Sonar -->
-        </plugin>
-
-    </plugins>
-</build>
+        </plugins>
+    </build>
 
 
 </project>
