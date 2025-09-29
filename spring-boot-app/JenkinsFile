@@ -9,7 +9,7 @@ pipeline {
     environment {
     JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
     PATH = "${JAVA_HOME}/bin:${env.PATH}"
-    SONAR_URL = "http://34.201.116.83:9000"
+    SONAR_URL = "http://54.242.117.7:9000"
     DOCKER_REGISTRY = "https://index.docker.io/v1/"
     }
 
