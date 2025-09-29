@@ -21,8 +21,11 @@ pipeline {
         }
         stage('Build and Test') {
             steps {
-                sh 'ls -ltr'
-                sh 'cd spring-boot-app && mvn clean package'
+                sh '''
+                    cd spring-boot-app
+                    ls -ltr
+                    mvn clean package
+                '''
             }
         }
         stage('Static Code Analysis') {
