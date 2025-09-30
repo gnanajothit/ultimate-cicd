@@ -1,21 +1,30 @@
 pipeline {
-    agent {
-      docker {
-        image 'maven:3.9.3-eclipse-temurin-17'
-        args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
-      }
+    agent any 
+
+    tools {
+        maven 'maven'
     }
 
-
+    environment {
+        IMAGE_NAME = "gnanajothit18/cicd"
+        IMAGE_TAG  = "latest"
+    }
 
     stages {
-        stage('Checkout') {
+
+        stage('Git Clone') {
             steps {
-                sh 'echo passed'
-                // git branch: 'main', url: 'https://github.com/gnanajothit/ultimate-cicd.git'
+                git branch: 'main', url: 'https://github.com/gnanajothit/ultimate-cicd.git'
             }
         }
-        stage('Build and Test') {
+
+        stage('Find the PATH') {
+            steps {
+                sh 'echo $PATH'
+            }
+        }
+
+        stage('Testing') {
             steps {
                 sh '''
                     cd spring-boot-app
@@ -26,47 +35,64 @@ pipeline {
         }
         stage('Static Code Analysis') {
             environment {
-                SONAR_URL = "http://54.242.117.7:9000"
+                SONAR_URL = "http://52.72.192.194:9000"
             }
             steps {
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-                    sh 'cd spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+                sh 'cd spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
                 }
             }
         }
-        stage('Build and Push Docker Image') {
-            agent any
+        stage('Docker') {
+            steps {
+                sh 'docker --version'
+            }
+        }
+
+        stage('Build Docker Image') {
             environment {
-                DOCKER_IMAGE = "gnanajothit/ultimate-cicd:${env.BUILD_NUMBER}"
+                DOCKER_IMAGE = "gnanajothit18/ultimate-cicd:${BUILD_NUMBER}"
                 REGISTRY_CREDENTIALS = credentials('docker-cred')
             }
             steps {
                 script {
-                    sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${DOCKER_IMAGE} .'
+                    // Build the Docker image
+                    sh 'cd spring-boot-app && docker build -t ${DOCKER_IMAGE} .'
+
+                    // Push the Docker image to Docker Hub
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
-                    docker.withRegistry('https://index.docker.io/v1/', "docker-cred") {
-                    dockerImage.push()
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-cred') {
+                        dockerImage.push()
+                    }
                 }
             }
-          }
         }
+
         stage('Update Deployment File') {
             environment {
-                GIT_REPO_NAME = "ultimate-cicd"
-                GIT_USER_NAME = "gnanajothit"
+                GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
+                GIT_USER_NAME = "iam-veeramalla"
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                     sh '''
-                        git config user.email "gnanajothit18@gmail.com"
+                        git config user.email "gnanajotht18@gmail.com"
                         git config user.name "gnanajothit"
+
+                        # Update deployment file with new image tag
+                        BUILD_NUMBER=${BUILD_NUMBER}
                         sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" spring-boot-app-manifests/deployment.yml
+
+                        # Stage and commit changes
                         git add spring-boot-app-manifests/deployment.yml
                         git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+
+                        # Push to GitHub
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                     '''
                 }
             }
         }
-    }
-}
+
+    } // end stages
+} // end pipeline
