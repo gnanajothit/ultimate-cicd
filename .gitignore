@@ -1,0 +1,28 @@
+# User shell & history files
+.bash_history
+.bash_logout
+.bashrc
+.profile
+.viminfo
+.lesshst
+.sudo_as_admin_successful
+
+# Cache & SSH configs
+.cache/
+.ssh/
+
+# IntelliJ / Eclipse / IDE stuff (optional if you use them)
+.idea/
+*.iml
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build artifacts (Java / Spring Boot)
+target/
+build/
+
+# Logs
+*.log
